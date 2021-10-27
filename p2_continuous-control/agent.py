@@ -30,7 +30,7 @@ class Agent():
 		self.critic_opt = Adam(self.local_critic.parameters(), lr=.01)
 
 		self.min_to_sample = 100
-		self.replay_buffer = ReplayBuffer(64, 1000, self.min_to_sample)
+		self.replay_buffer = ReplayBuffer(64, 1000000, self.min_to_sample)
 		# add noise to each action
 		self.noise = OUNoise(n_actions, random_seed) 
 
@@ -91,11 +91,11 @@ class Agent():
 		
 		next_actions = self.target_actor(next_states)
 		# Q is the sum of discounted rewards following a particular first action
-		target_q = rewards + self.Q_DISCOUNT * self.target_critic(next_states, next_actions)
+		target_q = rewards + (1 - dones) * self.Q_DISCOUNT * self.target_critic(next_states, next_actions)
 
-		loss = F.mse_loss(pred_q.to("cpu"), target_q.to("cpu")) 
+		critic_loss = F.mse_loss(pred_q.to("cpu"), target_q.to("cpu")) 
 		self.critic_opt.zero_grad()
-		loss.backward()
+		critic_loss.backward()
 		self.critic_opt.step()
 		
 		######
@@ -103,8 +103,11 @@ class Agent():
 		######
 		pred_actions = self.local_actor(states)
 		# critic used to critique actor: larger Q is better so minimize the negative of it
-		loss = -self.local_critic(states, pred_actions).to("cpu").mean()
-			
+		actor_loss = -self.local_critic(states, pred_actions).to("cpu").mean()
+		self.actor_opt.zero_grad()
+		actor_loss.backward()
+		self.actor_opt.step()
+	
 		######
 		# soft update target NNs
 		######
@@ -136,6 +139,7 @@ class OUNoise:
 class ReplayBuffer():
 	def __init__(self, batch_size, buffer_size, min_to_sample):
 		self.sample_size = batch_size
+		self.buffer_size = buffer_size
 		self.min_to_sample = max(min_to_sample, batch_size + 10)
 
 		self.q = deque(maxlen=buffer_size)
