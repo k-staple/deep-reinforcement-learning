@@ -15,6 +15,9 @@ class Agent():
 		# from paper
 		self.Q_DISCOUNT = .99
 		self.TAU = 0.001
+		self.UPDATE_EVERY = 20
+
+		self.ts = 0	
 
 		self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -27,8 +30,10 @@ class Agent():
 		self.target_critic = Critic(n_states, n_actions, 400, 300, .1).to(self.device)
 	
 		self.actor_opt = Adam(self.local_actor.parameters(), lr=.0001)
+		# use wgt decay for critic?
 		self.critic_opt = Adam(self.local_critic.parameters(), lr=.001)
 
+		# batch_size in the paper is 64 but 128 in 2 Udacity DDPG examples
 		self.batch_size = 128
 		self.min_to_sample = 128
 		self.replay_buffer = ReplayBuffer(self.batch_size, 1000000, self.min_to_sample)
@@ -48,6 +53,7 @@ class Agent():
 
 	def reset(self):
 		self.noise.reset()
+		self.ts = 0
 
 	def act(self, state, add_noise=True):
 		# while NNs won't be learning, generate diverse experiences (otherwise it seems are going in a loop of sorts to the same state when the agent acts based on initial weights while accumulating experience tuples)
@@ -66,9 +72,11 @@ class Agent():
 
 	def step(self, state, action, reward, next_state, done):
 		self.replay_buffer.add(state, action, reward, next_state, done)
-		if len(self.replay_buffer) >= self.replay_buffer.min_to_sample:
+		if (self.ts % self.UPDATE_EVERY == 0) and (len(self.replay_buffer) >= self.replay_buffer.min_to_sample):
 			experiences = self.replay_buffer.sample()
 			self.learn(experiences)
+
+		self.ts += 1
 	
 	def soft_update(self, target_NN, local_NN):
 		for local_param, target_param in zip(local_NN.parameters(), target_NN.parameters()): 
@@ -97,6 +105,7 @@ class Agent():
 		critic_loss = F.mse_loss(pred_q.to("cpu"), target_q.to("cpu")) 
 		self.critic_opt.zero_grad()
 		critic_loss.backward()
+		torch.nn.utils.clip_grad_norm(self.local_critic.parameters(), 1)
 		self.critic_opt.step()
 		
 		######
