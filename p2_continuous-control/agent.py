@@ -26,11 +26,12 @@ class Agent():
 		self.local_critic = Critic(n_states, n_actions, 400, 300, .1).to(self.device)
 		self.target_critic = Critic(n_states, n_actions, 400, 300, .1).to(self.device)
 	
-		self.actor_opt = Adam(self.local_actor.parameters(), lr=.001)
-		self.critic_opt = Adam(self.local_critic.parameters(), lr=.01)
+		self.actor_opt = Adam(self.local_actor.parameters(), lr=.0001)
+		self.critic_opt = Adam(self.local_critic.parameters(), lr=.001)
 
-		self.min_to_sample = 100
-		self.replay_buffer = ReplayBuffer(64, 1000000, self.min_to_sample)
+		self.batch_size = 128
+		self.min_to_sample = 128
+		self.replay_buffer = ReplayBuffer(self.batch_size, 1000000, self.min_to_sample)
 		# add noise to each action
 		self.noise = OUNoise(n_actions, random_seed) 
 
@@ -50,9 +51,9 @@ class Agent():
 
 	def act(self, state, add_noise=True):
 		# while NNs won't be learning, generate diverse experiences (otherwise it seems are going in a loop of sorts to the same state when the agent acts based on initial weights while accumulating experience tuples)
-		if len(self.replay_buffer) < self.min_to_sample:
-			random_actions = np.random.randn(self.n_agents, self.n_actions)
-			return np.clip(random_actions, -1, 1)
+		#if len(self.replay_buffer) < self.min_to_sample:
+		#	random_actions = np.random.randn(self.n_agents, self.n_actions)
+		#	return np.clip(random_actions, -1, 1)
 
 		self.local_actor.eval()
 		with torch.no_grad(): 
