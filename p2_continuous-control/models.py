@@ -41,7 +41,7 @@ class Actor(nn.Module):
 			layer.weight.data.uniform_(*get_normalization_range(layer))
 		self.output_layer.weight.data.uniform_(- self.output_layer_uniform_limit, self.output_layer_uniform_limit)
 	def forward(self, state):
-		x = self.dropout_layer(F.tanh(self.hidden1(state)))
+		x = self.dropout_layer(F.relu(self.hidden1(state)))
 		x = self.dropout_layer(F.relu(self.hidden2(x)))
 		# action range -1, 1
 		x = F.tanh(self.output_layer(x))
@@ -82,7 +82,7 @@ class Critic(nn.Module):
 		# want the action info to be in the same record (row) running through the NN
 		x = torch.cat((x, action), dim=1)
 		x = self.dropout_layer(F.relu(self.hidden2(x)))
-		x = F.relu(self.output_layer(x))
+		x = self.output_layer(x)
 		# or return index of highest x?
 		return x
 	

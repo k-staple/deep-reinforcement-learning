@@ -6,10 +6,11 @@ import torch.nn.functional as F
 from models import Actor, Critic
 import queue
 from collections import namedtuple, deque
+import copy
 
 class Agent():
 
-	def __init__(self, n_states, n_actions):
+	def __init__(self, n_states, n_actions, random_seed=3):
 		# constants
 		# from paper
 		self.Q_DISCOUNT = .99
@@ -29,7 +30,9 @@ class Agent():
 		self.critic_opt = Adam(self.local_critic.parameters(), lr=.01)
 
 		self.min_to_sample = 100
-		self.replay_buffer = ReplayBuffer(64, 1000, self.min_to_sample)
+		self.replay_buffer = ReplayBuffer(64, 1000000, self.min_to_sample)
+		# add noise to each action
+		self.noise = OUNoise(n_actions, random_seed) 
 
 	def save(self):
 		torch.save(self.local_actor.state_dict(), 'local_actor_state_dict.pt')
@@ -42,12 +45,23 @@ class Agent():
 		torch.save(self.local_critic, 'local_critic.pt')
 		torch.save(self.target_critic, 'target_critic.pt')
 
-	def act(self, state):
+	def reset(self):
+		self.noise.reset()
+
+	def act(self, state, add_noise=True):
 		# while NNs won't be learning, generate diverse experiences (otherwise it seems are going in a loop of sorts to the same state when the agent acts based on initial weights while accumulating experience tuples)
 		if len(self.replay_buffer) < self.min_to_sample:
 			random_actions = np.random.randn(self.n_agents, self.n_actions)
-			return np.clip(random_actions, -1, 1) 
-		return self.local_actor(torch.from_numpy(state).to(self.device))
+			return np.clip(random_actions, -1, 1)
+
+		self.local_actor.eval()
+		with torch.no_grad(): 
+			action = self.local_actor(torch.from_numpy(state).to(self.device))
+		action = action.to("cpu").detach().numpy()		
+		self.local_actor.train() 
+		if add_noise:
+			action += self.noise.sample()
+		return np.clip(action, -1, 1)
 
 	def step(self, state, action, reward, next_state, done):
 		self.replay_buffer.add(state, action, reward, next_state, done)
@@ -77,11 +91,11 @@ class Agent():
 		
 		next_actions = self.target_actor(next_states)
 		# Q is the sum of discounted rewards following a particular first action
-		target_q = rewards + self.Q_DISCOUNT * self.target_critic(next_states, next_actions)
+		target_q = rewards + (1 - dones) * self.Q_DISCOUNT * self.target_critic(next_states, next_actions)
 
-		loss = F.mse_loss(pred_q.to("cpu"), target_q.to("cpu")) 
+		critic_loss = F.mse_loss(pred_q.to("cpu"), target_q.to("cpu")) 
 		self.critic_opt.zero_grad()
-		loss.backward()
+		critic_loss.backward()
 		self.critic_opt.step()
 		
 		######
@@ -89,18 +103,43 @@ class Agent():
 		######
 		pred_actions = self.local_actor(states)
 		# critic used to critique actor: larger Q is better so minimize the negative of it
-		loss = -self.local_critic(states, pred_actions).to("cpu").mean()
-			
+		actor_loss = -self.local_critic(states, pred_actions).to("cpu").mean()
+		self.actor_opt.zero_grad()
+		actor_loss.backward()
+		self.actor_opt.step()
+	
 		######
 		# soft update target NNs
 		######
 		self.target_critic = self.soft_update(self.target_critic, self.local_critic)
 		self.target_actor = self.soft_update(self.target_actor, self.local_actor)
 	
+class OUNoise:
+    """Ornstein-Uhlenbeck process."""
+
+    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
+        """Initialize parameters and noise process."""
+        self.mu = mu * np.ones(size)
+        self.theta = theta
+        self.sigma = sigma
+        self.seed = random.seed(seed)
+        self.reset()
+
+    def reset(self):
+        """Reset the internal state (= noise) to mean (mu)."""
+        self.state = copy.copy(self.mu)
+
+    def sample(self):
+        """Update internal state and return it as a noise sample."""
+        x = self.state
+        dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
+        self.state = x + dx
+        return self.state
 
 class ReplayBuffer():
 	def __init__(self, batch_size, buffer_size, min_to_sample):
 		self.sample_size = batch_size
+		self.buffer_size = buffer_size
 		self.min_to_sample = max(min_to_sample, batch_size + 10)
 
 		self.q = deque(maxlen=buffer_size)
