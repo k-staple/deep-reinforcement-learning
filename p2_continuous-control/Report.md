@@ -1,7 +1,7 @@
 # My solution for Unity's Banana Navigator environment
 
 ### Plot of Rewards
-This implementation solved the environment (average reward of +13 over the previous 100 consecutive episodes) in @@@!!! episodes. Below is a plot of the rewards during training. 
+This implementation solved the environment (average reward over 100 episodes of at least +30) in @@@!!! episodes. Below is a plot of the rewards during training. 
 
 ![Plot of Rewards](https://github.com/k-staple/deep-reinforcement-learning/blob/update_report/p1_navigation/plot_of_rewards_during_training.PNG "Plot of Rewards")
 
