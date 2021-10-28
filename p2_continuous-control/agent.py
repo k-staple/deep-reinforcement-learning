@@ -164,8 +164,8 @@ class ReplayBuffer():
 		states = torch.from_numpy(np.vstack([tuple_t.state for tuple_t in samples if tuple_t is not None]))
 		actions = torch.from_numpy(np.vstack([tuple_t.action for tuple_t in samples if tuple_t is not None]))
 		rewards = torch.from_numpy(np.vstack([tuple_t.reward for tuple_t in samples if tuple_t is not None]))
-		next_states = torch.from_numpy(np.vstack([tuple_t.state for tuple_t in samples if tuple_t is not None]))
-		dones = torch.from_numpy(np.vstack([tuple_t.state for tuple_t in samples if tuple_t is not None]))
+		next_states = torch.from_numpy(np.vstack([tuple_t.next_state for tuple_t in samples if tuple_t is not None]))
+		dones = torch.from_numpy(np.vstack([tuple_t.done for tuple_t in samples if tuple_t is not None]).astype(np.uint8))
 
 		return (states, actions, rewards, next_states, dones)
 	def __len__(self):
