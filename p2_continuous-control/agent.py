@@ -14,8 +14,10 @@ class Agent():
 		# constants
 		# from paper
 		self.Q_DISCOUNT = .99
-		self.TAU = 0.001
-		self.UPDATE_EVERY = 20
+		self.UPDATE_EVERY = 10
+		# 0.001 is the TAU recommended in the paper (which also soft updated every timestep)
+#		self.TAU = 0.001 * self.UPDATE_EVERY
+		self.TAU = 0.05
 
 		# increments the timestep, resets at the beginning of every episode
 		self.ts = 0	
@@ -25,10 +27,10 @@ class Agent():
 		self.n_agents = 1
 		self.n_actions = n_actions
 
-		self.local_actor = Actor(n_states, n_actions, 400, 300, 0).to(self.device)
-		self.target_actor = Actor(n_states, n_actions, 400, 300, 0).to(self.device)
-		self.local_critic = Critic(n_states, n_actions, 400, 300, 0).to(self.device)
-		self.target_critic = Critic(n_states, n_actions, 400, 300, 0).to(self.device)
+		self.local_actor = Actor(n_states, n_actions, 40, 32, 0).to(self.device)
+		self.target_actor = Actor(n_states, n_actions, 40, 32, 0).to(self.device)
+		self.local_critic = Critic(n_states, n_actions, 40, 32, 0).to(self.device)
+		self.target_critic = Critic(n_states, n_actions, 40, 32, 0).to(self.device)
 	
 		self.actor_opt = Adam(self.local_actor.parameters(), lr=.0001)
 		# use wgt decay for critic?
