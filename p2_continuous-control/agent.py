@@ -24,10 +24,11 @@ class Agent():
 		self.n_agents = n_agents
 		self.n_actions = n_actions
 
+		# Danny suggested to try this learning rate & fewer nodes in the first hidden layer than the second and both less than 50
 		self.local_actor = Actor(n_states, n_actions, 24, 48, 0).to(self.device)
 		self.target_actor = Actor(n_states, n_actions, 24, 48, 0).to(self.device)
 		self.local_critic = Critic(n_states, n_actions, 24, 48, 0).to(self.device)
-		self.target_critic = Critic(n_states, n_actions, 24, 48, 0).to(self.device)
+		self.target_critic = Critic(n_states, n_actions, 24, 48, 0).to(self.device)	
 	
 		self.actor_opt = Adam(self.local_actor.parameters(), lr=.0002)
 		self.critic_opt = Adam(self.local_critic.parameters(), lr=.0002)
