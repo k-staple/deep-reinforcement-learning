@@ -15,7 +15,6 @@ def get_normalization_range(layer):
 # input:  state
 # output: action
 class Actor(nn.Module):
-	# TODO: maybe use a random seed
 	def __init__(self, n_states, n_actions, hidden1_size, hidden2_size, dropout_p=0):
 		super().__init__()
 		self.output_layer_uniform_limit = .003
@@ -50,7 +49,6 @@ class Actor(nn.Module):
 # input:  (state, action) pair
 # output: Q(s,a) values
 class Critic(nn.Module):
-	# TODO: maybe use a random seed
 	def __init__(self, n_states, n_actions, hidden1_size, hidden2_size, dropout_p=0):
 		super().__init__()
 		self.output_layer_uniform_limit = .003
@@ -83,7 +81,6 @@ class Critic(nn.Module):
 		x = torch.cat((x, action), dim=1)
 		x = self.dropout_layer(F.relu(self.hidden2(x)))
 		x = self.output_layer(x)
-		# or return index of highest x?
 		return x
 	
 
