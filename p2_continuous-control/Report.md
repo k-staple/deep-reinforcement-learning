@@ -8,8 +8,7 @@ This implementation solved the environment (average reward - averaged over all 2
 
 ### Learning Algorithm
 In this project, I implemented the DDPG algorithm to solve Unity's Reacher environment for a single agent. At a high-level, this involved an agent with four neural networks: a local actor and critic that measured themselves against the target actor and critic respectively. Continuous_Control.ipynb contains the code to instantiate the agent and then prompts the agent to store its interactions with the environment as experience in its replay buffer and periodically learn. Learning involves the agent sampling experiences from its replay buffer and using them to train its actors (estimates best action) and critics (estimates total reward an action will lead to given a certain state). 
-The four neural networks use the same architecture as https://github.com/udacity/deep-reinforcement-learning/tree/master/ddpg-bipedal which was inspired by the original DDPG paper and can be found in model.py. 
-The actors' and critics' neural networks consisted of two fully connected hidden layers with relu activations followed by a fully connected output layer. The actors' output layer had a tanh activation function because the action space was -1 to 1 while the critics' output layer had no activation function. There's dropout layers after the activation functions, but the probability is 0, so dropout is not utilized.
+The actors' and critics' neural networks (models.py) consisted of two fully connected hidden layers with relu activations followed by a fully connected output layer. The actors' output layer had a tanh activation function because the action space was -1 to 1 while the critics' output layer had no activation function. There's dropout layers after the activation functions, but the probability is 0, so dropout is not utilized.
 
 For the agent's hyperparameters, I used: 
 - learning rate of .0002 for actors and critics
