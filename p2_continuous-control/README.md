@@ -63,11 +63,9 @@ To set up your python environment to run the code in this repository, follow the
 	activate drlnd
 	```
 	
-2. Clone the repository (if you haven't already!), and navigate to the `python/` folder.  Then, install several dependencies. This repository was originally forked from https://github.com/udacity/deep-reinforcement-learning, and I copied Udacity's RL repository's python folder to under p1_navigation as well, so everything necessary for project 1 was in the p1_navigation folder.
+2. Clone the repository (if you haven't already!), and navigate to the `python/` folder.
 ```bash
 git clone https://github.com/k-staple/deep-reinforcement-learning.git 
-cd deep-reinforcement-learning/p1_navigation/python
-pip install .
 ```
 
 3. Create an [IPython kernel](http://ipython.readthedocs.io/en/stable/install/kernel_install.html) for the `drlnd` environment.  
