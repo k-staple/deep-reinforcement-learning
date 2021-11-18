@@ -1,7 +1,8 @@
 [//]: # (Image References)
 
 [image1]: https://user-images.githubusercontent.com/10624937/42135623-e770e354-7d12-11e8-998d-29fc74429ca2.gif "Trained Agent"
-[image2]: https://user-images.githubusercontent.com/10624937/42135622-e55fb586-7d12-11e8-8a54-3c31da15a90a.gif "Soccer"
+[image2]: https://user-images.githubusercontent.com/10624937/42386929-76f671f0-8106-11e8-9376-f17da2ae852e.png "Kernel"
+[image3]: https://user-images.githubusercontent.com/10624937/42135622-e55fb586-7d12-11e8-8a54-3c31da15a90a.gif "Soccer"
 
 
 # Project 3: Collaboration and Competition
@@ -37,6 +38,39 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 2. Place the file in this repository, in the `p3_collab-compet/` folder, and unzip (or decompress) the file. 
 
+### Dependencies (this section is mostly from Udacity's RL repository's main README)
+
+To set up your python environment to run the code in this repository, follow the instructions below.
+
+1. Create (and activate) a new environment with Python 3.6.
+
+	- __Linux__ or __Mac__: 
+	```bash
+	conda create --name drlnd python=3.6
+	source activate drlnd
+	```
+	- __Windows__: 
+	```bash
+	conda create --name drlnd python=3.6 
+	activate drlnd
+	```
+	
+2. Clone the repository (if you haven't already!), and navigate to the `python/` folder.  Then, install several dependencies. This repository was originally forked from https://github.com/udacity/deep-reinforcement-learning, and I copied Udacity's RL repository's python folder to under p3_collab-compet as well, so everything necessary for project 3 was in the p3_collab-compet folder.
+```bash
+git clone https://github.com/k-staple/deep-reinforcement-learning.git 
+cd deep-reinforcement-learning/p3_collab-compet/python
+pip install .
+```
+
+3. Create an [IPython kernel](http://ipython.readthedocs.io/en/stable/install/kernel_install.html) for the `drlnd` environment.  
+```bash
+python -m ipykernel install --user --name drlnd --display-name "drlnd"
+```
+
+4. Before running code in a notebook, change the kernel to match the `drlnd` environment by using the drop-down `Kernel` menu. 
+
+![Kernel][image2]
+
 ### Instructions
 
 Follow the instructions in `Tennis.ipynb` to get started with training your own agent!  
@@ -45,7 +79,7 @@ Follow the instructions in `Tennis.ipynb` to get started with training your own 
 
 After you have successfully completed the project, you might like to solve the more difficult **Soccer** environment.
 
-![Soccer][image2]
+![Soccer][image3]
 
 In this environment, the goal is to train a team of agents to play soccer.  
 
